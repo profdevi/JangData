@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.1 copyright Comine.com 20160613M1654
+//v0.2 copyright Comine.com 20160614T1327
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -62,6 +62,15 @@ static const char *GSQLBuild[]=
 		"insert into TVersion(CID,CModuleId) values(0,0)",
 		0
 		};
+
+
+////////////////////////////////////////////////////////////////
+static bool GCleanSearchSQL(char *seaarchstr)
+	{
+	MStdAssert(seaarchstr!=0);
+	MStdStrClean(seaarchstr);		// Clean out not ascii chars
+	
+	}
 
 
 //******************************************************
@@ -287,5 +296,20 @@ bool MJangData::Destroy(void)
 	return true;
 	}
 
+
+///////////////////////////////////////////////////////////////////////
+bool MJangData::Search(const char *search,MIntList &retkeys)
+	{
+	MStdAssert(search!=0);
+
+	// Clean out the search string of special sql characters
+	MBuffer buffer(1000);
+	buffer.SetString(search);
+	MStdStrClean(buffer.GetBuffer());				// remove non ascii characters
+	MStdStrRemoveChars(buffer,"\"\';\\");
+	
+	
+	return true;
+	}
 
 

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.7 copyright Comine.com 20160420W1600
+//v2.8 copyright Comine.com 20160614T1307
 /*
 Bug Notice:
 	MStdSPrintf(const wchar_t *)  seems to be failing.
@@ -702,6 +702,68 @@ const wchar_t *MStdStrWide(double value)
 	{
 	MStdSPrintf(GTempWideBuffer,sizeof(GTempWideBuffer)/sizeof(wchar_t),L"%lf",value);
 	return GTempWideBuffer;
+	}
+
+
+////////////////////////////////////////////////////////////
+bool MStdStrIsMember(char ch,const char *str)
+	{
+	MStdAssert(str!=0);
+	for(const char *p=str;*p!=0;++p)
+		{
+		if(*p==ch) { return true; }
+		}
+
+	return false;
+	}
+
+
+///////////////////////////////////////////////////////////
+bool MStdStrIsMember(wchar_t ch,const wchar_t *str)
+	{
+	MStdAssert(str!=0);
+	for(const wchar_t *p=str;*p!=0;++p)
+		{
+		if(*p==ch) { return true; }
+		}
+
+	return false;
+	}
+
+
+////////////////////////////////////////////////////////////
+bool MStdStrRemoveChars(char *modifystr,const char *removechars)
+	{
+	char *src,*dst;
+	for(dst=src=modifystr; ;++src)
+		{
+		*dst=*src;
+		if(*dst==0) { break; }
+		if(MStdStrIsMember(*dst,removechars)==false)
+			{
+			dst=dst+1;
+			}
+		}
+
+	return true;
+	}
+
+
+////////////////////////////////////////////////////////////
+bool MStdStrRemoveChars(wchar_t *modifystr,const wchar_t *removechars)
+	{
+	wchar_t *src,*dst;
+	for(dst=src=modifystr; ;++src)
+		{
+		*dst=*src;
+		if(*dst==0) { break; }
+		if(MStdStrIsMember(*dst,removechars)==false)
+			{
+			dst=dst+1;
+			}
+		}
+
+	return true;
 	}
 
 

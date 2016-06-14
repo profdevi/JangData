@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.7 copyright Comine.com 20160420W1600
+//v2.8 copyright Comine.com 20160614T1307
 #ifndef MStdLib_h
 #define MStdLib_h
 
@@ -243,10 +243,16 @@ const char *MStdStr(double value);						// Build a temp string
 /////////////////////////////////////////////////
 // Wide String Operations
 int MStdSPrintf(wchar_t *target,int targetsize,const wchar_t *format,...);	// String Formated Printf
-const wchar_t *MStdStrWide(bool value);								// Build a temp string
-const wchar_t *MStdStrWide(int value);								// Build a temp string
-const wchar_t *MStdStrWide(float value);							// Build a temp string
-const wchar_t *MStdStrWide(double value);							// Build a temp string
+const wchar_t *MStdStrWide(bool value);					// Build a temp string
+const wchar_t *MStdStrWide(int value);					// Build a temp string
+const wchar_t *MStdStrWide(float value);				// Build a temp string
+const wchar_t *MStdStrWide(double value);				// Build a temp string
+
+//////////////////////////////////////////////////
+bool MStdStrIsMember(char ch,const char *str);			// Check if char is in string
+bool MStdStrIsMember(wchar_t ch,const wchar_t *str);	// Check if char is in string
+bool MStdStrRemoveChars(char *modifystr,const char *removechars);
+bool MStdStrRemoveChars(wchar_t *modifystr,const wchar_t *removechars);
 
 //////////////////////////////////////////////////
 // Extra Functions
