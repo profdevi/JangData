@@ -1,0 +1,30 @@
+#v1.28 copyright Comine.com 20140727U1320
+#
+#
+OUTPUT=main
+CPP=g++
+CC=gcc
+COMPARGS= -Iinclude  # -D_DEBUG -g -I/usr/include/freetype2 # -D_DEBUG  -g 
+LINKARGS= -lpthread -ldl # -lX11 -lXext -lXmu -lfreetype -lasound -lGL -lGLU 
+
+
+####################################################
+all :
+	$(CPP) -c $(COMPARGS) *.cpp 
+	$(CC) -c  $(COMPARGS) *.c
+	$(CPP) $(LINKARGS) *.o -o $(OUTPUT)
+
+
+####################################################
+clean:
+	-rm -f *.o
+	-rm -f $(OUTPUT)
+
+
+
+####################################################
+cleanall:
+	-rm -f *.o
+	-rm -f $(OUTPUT)
+
+

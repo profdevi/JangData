@@ -1,0 +1,31 @@
+#v1.28 copyright Comine.com 20140727U1320
+#
+#
+OUTPUT=main
+CPP=g++
+CC=gcc
+COMPARGS=  -Iinclude -lObjC -framework Foundation -framework CoreLocation  # -D_DEBUG  -g 
+LINKARGS=   
+
+
+####################################################
+all :
+	$(CPP) -c $(COMPARGS) *.cpp 
+	$(CC) -c  $(COMPARGS) *.c
+	$(CPP) -c  $(COMPARGS) $(LINKARGS) *.mm
+	$(CPP) $(LINKARGS) *.o -o $(OUTPUT)
+
+
+####################################################
+clean:
+	-rm -f *.o
+	-rm -f $(OUTPUT)
+
+
+
+####################################################
+cleanall:
+	-rm -f *.o
+	-rm -f $(OUTPUT)
+
+
