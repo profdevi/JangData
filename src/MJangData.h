@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /////////////////////////////////////////////////
 #include "MStdLib.h"
 #include "MSQLite.h"
-#include "MFileDirStore.h"
 #include "MIntList.h"
 
 /*
@@ -78,9 +77,8 @@ bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const ch
 class MJangData
 	{
 	////////////////////////////////////////////////
-	MSQLite mJangDB;
-	MFileDirStore mFileStore;
-
+	MSQLite mJangDB;											// Backend Database
+	
 	////////////////////////////////////////////////
 	void ClearObject(void);
 

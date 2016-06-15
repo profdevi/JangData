@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MConfigFile.h"
 #include "MBuffer.h"
 #include "MDirOps.h"
-#include "MFileDirStore.h"
 #include "MWUDirReader.h"
 #include "MFile.h"
 #include "MIntList.h"
@@ -292,6 +291,7 @@ bool MJangData::Create(void)
 ////////////////////////////////////////////////
 bool MJangData::Destroy(void)
 	{
+	mJangDB.Destroy();
 	ClearObject();
 	return true;
 	}
@@ -307,8 +307,13 @@ bool MJangData::Search(const char *search,MIntList &retkeys)
 	buffer.SetString(search);
 	MStdStrClean(buffer.GetBuffer());				// remove non ascii characters
 	MStdStrRemoveChars(buffer,"\"\';\\");
+
+	// Build up a generic search string
+	buffer.StringPrepend("select CID from Module where CID>0 and CInfo like '%");
+	buffer.StringAppend("%'");
+
 	
-	
+
 	return true;
 	}
 
