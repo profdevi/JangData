@@ -63,15 +63,6 @@ static const char *GSQLBuild[]=
 		};
 
 
-////////////////////////////////////////////////////////////////
-static bool GCleanSearchSQL(char *seaarchstr)
-	{
-	MStdAssert(seaarchstr!=0);
-	MStdStrClean(seaarchstr);		// Clean out not ascii chars
-	
-	}
-
-
 //******************************************************
 //**  MJangData Create/Destroy for infrstructure
 //******************************************************
