@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.0 copyright Comine.com 20150220F0758
+//v0.1 copyright Comine.com 20160617F1144
 #include "MStdLib.h"
 #include "TVector.h"
 #include "MBuffer.h"
@@ -63,7 +63,7 @@ MWUProcess::~MWUProcess(void)
 
 
 ////////////////////////////////////////////////
-bool MWUProcess::Create(const char *commandline,const char *currentdir,const char *environblock[])
+bool MWUProcess::Create(const char *commandline,const char *currentdir,char *const environblock[])
 	{
 	Destroy();
 
@@ -76,8 +76,8 @@ bool MWUProcess::Create(const char *commandline,const char *currentdir,const cha
 	MStdMemZero(&procinfo,sizeof(procinfo) );
 
 	//**Allocate a block for environment table
-	const char **environbuf;
-	const char *environdummy[]={"MWUProcess=RUNNING",0};
+	char *const *environbuf;
+	char * const environdummy[]={"MWUProcess=RUNNING",0};
 	if(environblock!=NULL)
 		{
 		environbuf=environblock;
@@ -143,10 +143,13 @@ int MWUProcess::Wait(void)
 
 
 //******************************************************
-//**  Unix Implemntation
+//**  Linux Implemntation
 //******************************************************
-#elif defined(MSTDLIB_OS_UNIX)
+#elif defined(MSTDLIB_OS_LINUX)
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
 
 ////////////////////////////////////////////////////
 void MWUProcess::ClearObject(void)
@@ -166,7 +169,7 @@ MWUProcess::~MWUProcess(void)
 
 
 ////////////////////////////////////////////////
-bool MWUProcess::Create(const char *commandline,const char *currentdir,const char *environblock[])
+bool MWUProcess::Create(const char *commandline,const char *currentdir,char * const environblock[])
 	{
 	Destroy();
 
@@ -206,11 +209,11 @@ bool MWUProcess::Create(const char *commandline,const char *currentdir,const cha
 		}
 
 	//=argv is now contains the arguments
-	const int retexec=execve(argv.Get(0),argv.Get(),environblock);
+	const int retexec=execve(argv.Get(0),(char *const *)argv.Get(),environblock);
 	if(retexec<0)
 		{
 		Destroy();
-		exit(-1)
+		exit(-1);
 		return false;
 		}
 	
@@ -229,10 +232,10 @@ bool MWUProcess::Destroy(void)
 
 
 
-////////////////////////////////////////////////
+///////////////////////////////////////////////
 int MWUProcess::Wait(void)
 	{
-	int status=0;
+	int status;
 	wait(&status);
 	return status;
 	}

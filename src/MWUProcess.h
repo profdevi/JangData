@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.0 copyright Comine.com 20150816U1847
+//v0.1 copyright Comine.com 20160617F1144
 #ifndef MWUProcess_h
 #define MWUProcess_h
 
@@ -41,85 +41,47 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Class gives an OS Neutral Version of Process Execution.
 */
 
-
-//*********************************************************
-//*   Windows Version of Class
-//*********************************************************
+//////////////////////////////////////////////////////
+// OS Dependentent header files
 #if defined(MSTDLIB_OS_WINDOWS)
-#include <windows.h>
-
-//////////////////////////////////////////
-class MWUProcess
-	{
-	////////////////////////////////////////////////
-	HANDLE mhProcess;
-		
-	////////////////////////////////////////////////
-	void ClearObject(void);
-
-	////////////////////////////////////////////////
-	public:
-	MWUProcess(void);
-	~MWUProcess(void);
-	bool Create(const char *commandline,const char *currentdir,const char *environblock[]=NULL);
-	bool Destroy(void);
-	int Wait(void);								// Wait Till Process Finishes
-	};
-
-
-//*********************************************************
-//*  Unix Implementation
-//*********************************************************
-#elif defined(MSTDLIB_OS_UNIX)
-#include <unistd.h>
-
-//////////////////////////////////////////
-class MWUProcess
-	{
-	////////////////////////////////////////////////
-	int mChildPID;
-		
-	////////////////////////////////////////////////
-	void ClearObject(void);
-
-	////////////////////////////////////////////////
-	public:
-	MWUProcess(void);
-	~MWUProcess(void);
-	bool Create(const char *commandline,const char *currentdir,const char *environblock[]=NULL);
-	bool Destroy(void);
-	int Wait(void);								// Wait Till Process Finishes
-	};
-
-
-
-//******************************************************
-//**  MWUProcess  for Unix
-//******************************************************
-class MWUProcess
-	{
-	////////////////////////////////////////////////
-	int mChildPID;
-		
-	////////////////////////////////////////////////
-	void ClearObject(void);
-
-	////////////////////////////////////////////////
-	public:
-	MWUProcess(void);
-	~MWUProcess(void);
-	bool Create(const char *commandline,const char *currentdir,const char *environblock[]=NULL);
-	bool Destroy(void);
-	int Wait(void);								// Wait Till Process Finishes
-	};
-
-
-//*********************************************************
-//*  Unknown Operating System
-//*********************************************************
+	#include <windows.h>
+#elif defined(MSTDLIB_OS_LINUX)
+	#include <unistd.h>
 #else
-	#error "Unimplemented for current system "
-#endif // MSTDLIB_OS_WINDOWS
+	#error "Unable to get the data"
+#endif
+
+//////////////////////////////////////////
+class MWUProcess
+	{
+	////////////////////////////////////////////////
+
+	/////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWS)
+	HANDLE mhProcess;
+
+	/////////////////////////////////////////////
+	#elif defined(MSTDLIB_OS_LINUX)
+	int mChildPID;
+
+	/////////////////////////////////////////////
+	#else
+		#error "Unknown System"
+
+	#endif
+		
+	////////////////////////////////////////////////
+	void ClearObject(void);
+
+	////////////////////////////////////////////////
+	public:
+	MWUProcess(void);
+	~MWUProcess(void);
+	bool Create(const char *commandline,const char *currentdir,char * const environblock[]=0);
+	bool Destroy(void);
+	int Wait(void);								// Wait Till Process Finishes
+	};
+
 
 #endif // MWUProcess_h
 
