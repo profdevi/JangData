@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.1 copyright Comine.com 20160617F1144
+//v1.0 copyright Comine.com 20160620M1207
 #include "MStdLib.h"
 #include "TVector.h"
 #include "MBuffer.h"
@@ -63,7 +63,7 @@ MWUProcess::~MWUProcess(void)
 
 
 ////////////////////////////////////////////////
-bool MWUProcess::Create(const char *commandline,const char *currentdir,char *const environblock[])
+bool MWUProcess::Create(const char *commandline,const char *currentdir)
 	{
 	Destroy();
 
@@ -75,41 +75,9 @@ bool MWUProcess::Create(const char *commandline,const char *currentdir,char *con
 	PROCESS_INFORMATION procinfo;
 	MStdMemZero(&procinfo,sizeof(procinfo) );
 
-	//**Allocate a block for environment table
-	char *const *environbuf;
-	char * const environdummy[]={"MWUProcess=RUNNING",0};
-	if(environblock!=NULL)
-		{
-		environbuf=environblock;
-		}
-	else
-		{
-		environbuf=environdummy;
-		}
-
-	int envcount=0;
-	for(int i=0;environbuf[i]!=0;++i)
-		{
-		const char *envstr=environ[i];
-		envcount = envcount + MStdStrLen(environbuf[i])+2;
-		}
-
-	envcount = envcount + 2;
-
-	//** Create Environ block
-	MBuffer envbuffer(envcount);
-	char *writeposition=envbuffer.GetBuffer();
-	for(int i=0;environbuf[i]!=0;++i)
-		{
-		MStdStrCpy(writeposition,environbuf[i]);
-		writeposition += MStdStrLen(environbuf[i])+1;	// Write after zero
-		}
-
-	*writeposition=0;		// Final write position
-
 	if(CreateProcessA(NULL,(LPSTR)commandline,NULL,NULL
 			,FALSE,NORMAL_PRIORITY_CLASS
-			,envbuffer.GetBuffer(),currentdir,&startinfo,&procinfo)==FALSE)
+			,NULL,currentdir,&startinfo,&procinfo)==FALSE)
 		{
 		Destroy();
 		return false;
@@ -169,7 +137,7 @@ MWUProcess::~MWUProcess(void)
 
 
 ////////////////////////////////////////////////
-bool MWUProcess::Create(const char *commandline,const char *currentdir,char * const environblock[])
+bool MWUProcess::Create(const char *commandline,const char *currentdir)
 	{
 	Destroy();
 
@@ -208,8 +176,18 @@ bool MWUProcess::Create(const char *commandline,const char *currentdir,char * co
 		argv.Set(i,splitter.Get(i));
 		}
 
+	// Set Current Directory
+	if(currentdir!=0)
+		{
+		if(chdir(currentdir)<0)
+			{
+			Destroy();
+			return false;
+			}
+		}
+
 	//=argv is now contains the arguments
-	const int retexec=execve(argv.Get(0),(char *const *)argv.Get(),environblock);
+	const int retexec=execvp(argv.Get(0),(char *const *)argv.Get());
 	if(retexec<0)
 		{
 		Destroy();

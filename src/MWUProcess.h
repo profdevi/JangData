@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.1 copyright Comine.com 20160617F1144
+//v1.0 copyright Comine.com 20160620M1207
 #ifndef MWUProcess_h
 #define MWUProcess_h
 
@@ -77,7 +77,7 @@ class MWUProcess
 	public:
 	MWUProcess(void);
 	~MWUProcess(void);
-	bool Create(const char *commandline,const char *currentdir,char * const environblock[]=0);
+	bool Create(const char *commandline,const char *currentdir=0);
 	bool Destroy(void);
 	int Wait(void);								// Wait Till Process Finishes
 	};
