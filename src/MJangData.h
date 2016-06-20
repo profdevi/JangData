@@ -89,6 +89,7 @@ class MJangData
 	bool Create(void);
 	bool Destroy(void);
 	bool Search(const char *search,MIntList &retkeys);			//  Return the set of keys of Modules
+	
 	};
 
 #endif // MJangData_h
