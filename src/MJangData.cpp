@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.2 copyright Comine.com 20160614T1327
+//v0.3 copyright Comine.com 20160620M1605
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MFile.h"
 #include "MIntList.h"
 #include "MFilePathBuilder.h"
+#include "MZipOps.h"
 #include "MJangData.h"
 
 
@@ -63,128 +64,6 @@ static const char *GSQLBuild[]=
 		"insert into TVersion(CID,CModuleId) values(0,0)",
 		0
 		};
-
-
-/////////////////////////////////////////////////////////////////
-/*
-	Compresses a folder to a zip file
-
-	Example:
-		GCompressFolder("c:/work/test","one.zip")
-
-		This will create a file one.zip in the parent directory of
-		the compressed folder test.
-
-		This is done with the command "zip -v -r one.zip test"
-
-*/
-static bool GCompressFolder(const char *folder,const char *zipfile,MString& outzipfile)
-	{
-	MDirOps dirops(true);
-	if(dirops.Exists(folder)==false)
-		{
-		return false;
-		}
-
-	MFileOps fileops(true);
-	MString foldertozip;
-	if(fileops.GetAbsolutePath(folder,foldertozip)==false)
-		{
-		return false;
-		}
-
-	// **Build ip the parent dir and target zip file
-	MBuffer buffer(2000);
-	buffer.SetString(foldertozip.Get());
-	buffer.StringAppend("/..");
-	
-	// Get Parentdir
-	MString parentdir;
-	if(fileops.GetAbsolutePath(buffer.GetBuffer(),parentdir)==false)
-		{
-		return false;
-		}
-
-	// Get the zip file
-	buffer.StringAppend("/");
-	buffer.StringAppend(zipfile);
-	if(fileops.GetAbsolutePath(buffer.GetBuffer(),outzipfile)==false)
-		{
-		return false;
-		}
-
-
-	if(fileops.Exists(outzipfile.Get())==true)
-		{
-		return false;
-		}
-
-	// build up the zip command line
-	MBuffer zipcommandline(2000);
-	zipcommandline.SetString("zip -v -r ");
-	zipcommandline.StringAppend(zipfile);
-	zipcommandline.StringAppend(" ");
-
-
-	// Build up the path
-	MFilePathBuilder pathbuilder;	
-	if(pathbuilder.Create(foldertozip.Get())==false)
-		{
-		return false;
-		}
-
-	MString dirname(pathbuilder.GetTop());
-	zipcommandline.StringAppend(dirname.Get());
-
-	// Start Zip Process
-	MWUProcess zipprocess;
-	if(zipprocess.Create(zipcommandline.GetBuffer(),parentdir.Get())==false)
-		{
-		return false;
-		}
-
-	zipprocess.Wait();
-
-	return true;
-	}
-
-
-/////////////////////////////////////////////////////////////////
-/*
-	Decompresses a zip file to current folder
-
-	Example:
-		GDecompress("c:/work/one.zip")
-
-*/
-static bool GDecompress(const char *zipfile)
-	{
-	MFileOps fileops(true);
-
-	MString abspath;
-	if(fileops.GetAbsolutePath(zipfile,abspath)==false)
-		{
-		return false;
-		}
-
-	if(fileops.Exists(abspath.Get() )==false)
-		{
-		return false;
-		}
-
-	MBuffer commandline(2000);
-	commandline.SetString("unzip ");
-	commandline.StringAppend(abspath.Get() );
-
-	MWUProcess process;
-	if(process.Create(commandline.GetBuffer(),".")==false)
-		{
-		return false;
-		}
-
-	process.Wait();
-	return true;
-	}
 
 
 /////////////////////////////////////////////////////////////////
