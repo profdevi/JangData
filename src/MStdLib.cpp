@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.8 copyright Comine.com 20160614T1307
+//v2.9 copyright Comine.com 20160621T1040
 /*
 Bug Notice:
 	MStdSPrintf(const wchar_t *)  seems to be failing.

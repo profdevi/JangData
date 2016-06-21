@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.8 copyright Comine.com 20160614T1307
+//v2.9 copyright Comine.com 20160621T1040
 #ifndef MStdLib_h
 #define MStdLib_h
 
@@ -200,7 +200,13 @@ void MStdAssertInternal(bool flag,const char *exp,const char *filename,int linen
 void MStdError(const char *info,const char *filename,int lineno);
 void MStdBreak(void);									// Break Point in Code
 
-//////////////////////////////////////////////////
+//************************************************
+//*  Limits
+//************************************************
+const int MStdPathMaxSize=4096;
+
+
+/////////////////////////////////////////////////
 // Abstract File Handles
 typedef void *MStdFileHandle;
 

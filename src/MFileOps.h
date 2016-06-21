@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.46 copyright Comine.com 20130813R1234
+//v1.47 copyright Comine.com 20160621T1058
 #ifndef MFileOps_h
 #define MFileOps_h
 

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160620M1600
+//v1.1 copyright Comine.com 20160621T1039
 #include "MStdLib.h"
 #include "MString.h"
 #include "MDirOps.h"
@@ -98,7 +98,7 @@ bool MZipOps::CompressFolder(const char *folder,const char *zipfile,MString& out
 		}
 
 	// **Build ip the parent dir and target zip file
-	MBuffer buffer(2000);
+	MBuffer buffer(MStdPathMaxSize);
 	buffer.SetString(foldertozip.Get());
 	buffer.StringAppend("/..");
 	
@@ -110,6 +110,7 @@ bool MZipOps::CompressFolder(const char *folder,const char *zipfile,MString& out
 		}
 
 	// Get the zip file
+	buffer.SetString(parentdir.Get() );
 	buffer.StringAppend("/");
 	buffer.StringAppend(zipfile);
 	if(fileops.GetAbsolutePath(buffer.GetBuffer(),outzipfile)==false)
@@ -124,7 +125,7 @@ bool MZipOps::CompressFolder(const char *folder,const char *zipfile,MString& out
 		}
 
 	// build up the zip command line
-	MBuffer zipcommandline(2000);
+	MBuffer zipcommandline(MStdPathMaxSize);
 	zipcommandline.SetString("zip -v -r ");
 	zipcommandline.StringAppend(zipfile);
 	zipcommandline.StringAppend(" ");
@@ -168,7 +169,7 @@ bool MZipOps::Decompress(const char *zipfile)
 		return false;
 		}
 
-	MBuffer commandline(2000);
+	MBuffer commandline(MStdPathMaxSize);
 	commandline.SetString("unzip ");
 	commandline.StringAppend(abspath.Get() );
 
@@ -199,7 +200,7 @@ bool MZipOps::ZipInfo(const char *zipfile)
 		return false;
 		}
 
-	MBuffer commandline(2000);
+	MBuffer commandline(MStdPathMaxSize);
 	commandline.SetString("unzip -v ");
 	commandline.StringAppend(abspath.Get() );
 

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.46 copyright Comine.com 20130813R1234
+//v1.47 copyright Comine.com 20160621T1058
 #include "MStdLib.h"
 
 //////////////////////////////////////////////
@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //////////////////////////////////////////////
 #elif ( defined(MSTDLIB_API_LINUX) )
+#include <linux/limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -81,7 +82,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //**  Module Elements
 //******************************************************
 static const char *GTempFileSuffix="__MFileOps__";
-static const int GMaxPathLength=2000;
 
 ////////////////////////////////////////////////
 #if (defined(MSTDLIB_API_WINDOWS) )
@@ -1710,7 +1710,7 @@ bool MFileOps::GetAbsolutePath(const char *filename
 	/////////////////////////////////////////////////////
 	#if ( defined(MSTDLIB_API_WINDOWS) )
 	MBuffer buffer;
-	if(buffer.Create(GMaxPathLength)==false)
+	if(buffer.Create(MStdPathMaxSize)==false)
 		{
 		return false;
 		}
@@ -1743,9 +1743,10 @@ bool MFileOps::GetAbsolutePath(const char *filename
 
 	return true;
 
+	/////////////////////////////////////////////////
 	#elif (defined(MSTDLIB_API_LINUX) )
 	MBuffer buffer;
-	if(buffer.Create(GMaxPathLength)==false)
+	if(buffer.Create(PATH_MAX)==false)
 		{
 		return false;
 		}
@@ -1801,7 +1802,7 @@ bool MFileOps::GetTemperoryFileName(MString &filename)			// Get Full path Temp F
 	#if ( defined(MSTDLIB_API_WINDOWS) )
 	// Get Temp Directory
 	MBuffer tmpdir;
-	if(tmpdir.Create(GMaxPathLength)==false)
+	if(tmpdir.Create(MStdPathMaxSize)==false)
 		{
 		return false;
 		}
@@ -1814,7 +1815,7 @@ bool MFileOps::GetTemperoryFileName(MString &filename)			// Get Full path Temp F
 
 	//Get Temp File Name
 	MBuffer buffer;
-	if(buffer.Create(GMaxPathLength)==false)
+	if(buffer.Create(MStdPathMaxSize)==false)
 		{
 		return false;
 		}
@@ -1842,7 +1843,7 @@ bool MFileOps::GetTemperoryFileName(MString &filename)			// Get Full path Temp F
 	////////////////////////////////////////////
 	#elif (defined(MSTDLIB_API_LINUX) )
 	MBuffer buffer;
-	if(buffer.Create(GMaxPathLength)==false)
+	if(buffer.Create(MStdPathMaxSize)==false)
 		{
 		return false;
 		}
@@ -1969,7 +1970,7 @@ bool MFileOps::GetTempFileNameInDir(const char *directory,MString &filename)
 bool MFileOps::GetCanonicalName(const char *path,MString &canonname)
 	{
 	MBuffer buffer;
-	if(buffer.Create(GMaxPathLength)==false)
+	if(buffer.Create(MStdPathMaxSize)==false)
 		{
 		return false;
 		}

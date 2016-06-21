@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160620M1600
+//v1.1 copyright Comine.com 20160621T1039
 #ifndef MZipOps_h
 #define MZipOps_h
 
