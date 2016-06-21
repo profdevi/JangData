@@ -50,19 +50,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	Database Design:
 
-		Module(Id,Info) ----< Version(ID,ModuleId)
+		Module(Id,User,Info,Date,DirName)
 
 	Note:	
 		Id<=0 are used for testing purposes.
 
 
 	Business Services:
-	[Module]*		Search(SearchString)						: Find all modules that match version
-	[Module]		ModuleAdd(ModuleInfo)						: Add a new module
-					ModuleDel([Module])							: Remove a module if no versions
-	[Version]*		ModuleGetVersions([Module])					: Find Versions for given modules
-					VersionAdd([ModuleId],file_or_dir)			: Add a new version
-					VersionDel([Version])						: Remove Version for some module
+	[Module]*		ModuleSearch(Word*)						: Find all modules that match version
+	[Module]		ModuleAdd(Info,SrcDirectory)			: Add a new module
+					ModuleDel([Module])						: Remove a module if no versions
 */
 
 //******************************************************
@@ -88,7 +85,8 @@ class MJangData
 	~MJangData(void);
 	bool Create(void);
 	bool Destroy(void);
-	bool Search(const char *search,MIntList &retkeys);			//  Return the set of keys of Modules
+	bool Search(MStringList &searchwords,MIntList &retkeys);			//  Return the set of keys of Modules
+	int ModuleAdd(const char *directory,const char *info);				//  
 	
 	};
 

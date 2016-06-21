@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160621T1040
+//v2.9 copyright Comine.com 20160621T1312
 /*
 Bug Notice:
 	MStdSPrintf(const wchar_t *)  seems to be failing.
@@ -72,6 +72,7 @@ Bug Notice:
 #include <sys/stat.h>
 #include <math.h>
 #include <wchar.h>
+#include <pwd.h>
 #endif
 
 //***************************************************
@@ -2129,6 +2130,39 @@ bool MStdDirDestroy(const char *dirpath,bool generror)
 	return false;
 	}
 
+
+//////////////////////////////////////////////////////
+bool MStdGetUserName(char buf[],int buflength)
+	{
+	MStdAssert(buflength>=30 && buf!=0);
+
+	///////////////////////////////////////////
+	#if ( defined(MSTDLIB_OS_WINDOWS) || defined(MSTDLIB_OS_WINDOWSOLD) || defined(MSTDLIB_OS_MINGW) )
+	DWORD buflen=buflength;
+	BOOL ret=GetUserNameA(buf,&buflen);
+	if(ret==FALSE)
+		{
+		buf[0]=0;
+		return false;
+		}
+
+	return true;
+
+	///////////////////////////////////////////
+	#elif ( defined(MSTDLIB_OS_LINUX) || defined(MSTDLIB_OS_OTHER) || defined(MSTDLIB_OS_MACOS) || defined(MSTDLIB_OS_IPHONE) )
+
+	struct passwd *pdata=getpwuid(getuid());
+	if(pdata==NULL)
+		{
+		buf[0]=0;
+		return false;
+		}
+
+	MStdStrCpy(buf,pdata->pw_name);
+	return true;
+	#endif
+	}
+	
 
 //////////////////////////////////////////////////////
 bool MStdStrCpy(char *outstr,int maxoutlen,const wchar_t *str)

@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MIntList.h"
 #include "MFilePathBuilder.h"
 #include "MZipOps.h"
+#include "MStringList.h"
+#include "MStringBuffer.h"
 #include "MJangData.h"
 
 
@@ -58,49 +60,18 @@ static const char GJangDataDB[]="MJangDataDB";
 // for testing purposes.
 static const char *GSQLBuild[]=
 		{
-		"create table TModule(CID integer primary key not null,CInfo varchar(250) not null)",
-		"create table TVersion(CID integer primary key not null,CModuleId integer not null references TModule(CID) )",
-		"insert into TModule(CID,CInfo) values(0,'Dummy Record')",
-		"insert into TVersion(CID,CModuleId) values(0,0)",
+		"create table TModule(CID integer primary key not null,CUser varchar(30) not null,CInfo varchar(250) not null)",
+		"insert into TModule(CID,CUser,CInfo) values(0,'DummyRecord','Dummy Record Info')",
 		0
 		};
 
 
-/////////////////////////////////////////////////////////////////
-/*
-	Show ZIP Information
-*/
-static bool GZipInfo(const char *zipfile)
+////////////////////////////////////////////////////////
+bool GCleanSQLInput(char *sql)
 	{
-	MFileOps fileops(true);
-
-	MString abspath;
-	if(fileops.GetAbsolutePath(zipfile,abspath)==false)
-		{
-		return false;
-		}
-
-	if(fileops.Exists(abspath.Get() )==false)
-		{
-		return false;
-		}
-
-	MBuffer commandline(2000);
-	commandline.SetString("unzip -v ");
-	commandline.StringAppend(abspath.Get() );
-
-	MWUProcess process;
-	if(process.Create(commandline.GetBuffer(),".")==false)
-		{
-		return false;
-		}
-
-	process.Wait();
+	MStdStrRemoveChars(sql," \\\t\r\n'");
 	return true;
 	}
-
-
-
 
 //******************************************************
 //**  MJangData Create/Destroy for infrstructure
@@ -328,21 +299,52 @@ bool MJangData::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////////////////
-bool MJangData::Search(const char *search,MIntList &retkeys)
+bool MJangData::Search(MStringList &searchwords,MIntList &retkeys)
 	{
-	MStdAssert(search!=0);
-
+	
 	// Clean out the search string of special sql characters
-	MBuffer buffer(1000);
-	buffer.SetString(search);
+	MBuffer buffer(1024*4);
 	MStdStrClean(buffer.GetBuffer());				// remove non ascii characters
 	MStdStrRemoveChars(buffer,"\"\';\\");
 
 	// Build up a generic search string
-	buffer.StringPrepend("select CID from Module where CID>0 and CInfo like '%");
-	buffer.StringAppend("%'");
+	buffer.StringPrepend("select CID from TModule where CID>0 ");
+	searchwords.ReadReset();
 
-	
+	MBuffer cleanword(1000);
+
+	for(const char *word=0;(word=searchwords.ReadString())!=0; )
+		{
+		cleanword.SetString(word);
+		GCleanSQLInput(cleanword.GetBuffer());
+		
+		buffer.StringAppend(" and CInfo like '%");
+		buffer.StringAppend(cleanword.GetBuffer());
+		buffer.StringAppend("%' ");
+		}
+
+
+	MSQLiteReader reader;
+	if(mJangDB.Exec(reader,buffer.GetBuffer())==false)
+		{
+		return false;
+		}
+
+	if(retkeys.Create()==false)
+		{
+		return false;
+		}
+
+	for(reader.ReadReset();reader.Read()==true; )
+		{
+		const char *data=reader.GetColumn(0);
+		MStdAssert(data!=0);
+		const int keyret=MStdAToI(data);
+		if(retkeys.Add(keyret)==false)
+			{
+			return false;
+			}
+		}
 
 	return true;
 	}

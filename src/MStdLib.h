@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160621T1040
+//v2.9 copyright Comine.com 20160621T1312
 #ifndef MStdLib_h
 #define MStdLib_h
 
@@ -619,6 +619,7 @@ bool MStdDirGet(char *buffer,int bufferlen);					// Gets the current working dir
 bool MStdDirSet(const char *dirpath);							// Sets the current directory
 bool MStdDirCreate(const char *dirpath);						// Create a new directory
 bool MStdDirDestroy(const char *dirpath,bool generror=false);	// Remove a directory
+bool MStdGetUserName(char buf[],int buflength);					// Get the user name of current user
 
 
 //////////////////////////////////////////////////
