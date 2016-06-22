@@ -54,20 +54,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const char GConfigFileName[]="MJangData.ini";
 static const char GJangDataStore[]="MJangDataStore";
 static const char GJangDataDB[]="MJangDataDB";
+static const char GTmpZipName[]="__MJangData__.zip";
 
 ////////////////////////////////////////////////////////////////
-// SQL For creation for data store.  Primary Keys>0.  First two rows are just dummy rows 
+// SQL For creation for data store.  Primary Keys>0.  First row is just a dummy rows 
 // for testing purposes.
 static const char *GSQLBuild[]=
 		{
-		"create table TModule(CID integer primary key not null,CUser varchar(30) not null,CInfo varchar(250) not null)",
-		"insert into TModule(CID,CUser,CInfo) values(0,'DummyRecord','Dummy Record Info')",
+		"create table TModule"
+			"("
+			"CID integer primary key not null,"
+			"CUser varchar(30) not null,"
+			"CInfo varchar(250) not null,"
+			"CDirName varchar(40) not null"
+			")",
+		"insert into TModule(CID,CUser,CInfo,CDirName) values(0,'DummyUser','Dummy Record Info','work')",
 		0
 		};
 
 
 ////////////////////////////////////////////////////////
-bool GCleanSQLInput(char *sql)
+static bool GCleanSQLInput(char *sql)
 	{
 	MStdStrRemoveChars(sql," \\\t\r\n'");
 	return true;
@@ -212,6 +219,7 @@ bool MJangData::Create(void)
 	{
 	Destroy();
 	
+	// Read the configuration file
 	MConfigFile configfile;
 	if(configfile.Create()==false)
 		{
@@ -248,9 +256,16 @@ bool MJangData::Create(void)
 
 	//=We Have loaded the config file into memory
 	
-	// CHeck if ini config entriies are fine
+	// Check if ini config entriies are fine
 	const char *jangdatastore=configfile.Get(GJangDataStore);
 	if(jangdatastore==0)
+		{
+		Destroy();
+		return false;
+		}
+
+	// Save folder
+	if(fileops.GetAbsolutePath(jangdatastore,mStorageDir)==false)
 		{
 		Destroy();
 		return false;
@@ -270,7 +285,7 @@ bool MJangData::Create(void)
 		return false;
 		}
 
-	// Check if FOlder Exists
+	// Check if Folder Exists
 	MDirOps dirops(true);
 	if(dirops.Exists(jangdatastore)==false)
 		{
@@ -285,6 +300,17 @@ bool MJangData::Create(void)
 		return false;
 		}
 
+	//**Get User Name
+	char username[100];
+	if(MStdGetUserName(username,sizeof(username)-2)==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	// Update the username info
+	mUserName.Create(username);
+
 	return true;
 	}
 
@@ -292,6 +318,7 @@ bool MJangData::Create(void)
 ////////////////////////////////////////////////
 bool MJangData::Destroy(void)
 	{
+	mStorageDir.Destroy();
 	mJangDB.Destroy();
 	ClearObject();
 	return true;
@@ -346,6 +373,137 @@ bool MJangData::Search(MStringList &searchwords,MIntList &retkeys)
 			}
 		}
 
+	return true;
+	}
+
+
+//////////////////////////////////////////////////////////
+int MJangData::ModuleAdd(const char *directory,const char *info)
+	{
+	// No Empty Information in info
+	MBuffer bufinfo(1000);
+	bufinfo.SetString(info);
+	GCleanSQLInput(bufinfo.GetBuffer() );
+	
+	MDirOps dirops(true);
+	if(dirops.Exists(directory)==false)
+		{
+		MStdPrintf("** Add Failed: Directory %s does not exist\n",directory);
+		return 0;
+		}
+
+	// Convert the directory to abspath
+	MFileOps fileops(true);
+	MString abspath;
+	if(fileops.GetAbsolutePath(directory,abspath)==false)
+		{
+		MStdPrintf("**Unable to get absolute path to directory %s\n",directory);
+		return false;
+		}
+
+	// Extract the directory name
+	MFilePathBuilder pathbuilder;
+	if(pathbuilder.Create(abspath.Get())==false)
+		{
+		MStdPrintf("**Unable to parse path %s\n",abspath.Get() );
+		return false;
+		}
+
+	//**Insert new row into table
+	MBuffer sql(2000);
+	MStdSPrintf(sql.GetBuffer(),sql.GetSize()-2,
+			"insert into TModule(CID,CUser,CInfo,CDirName) "
+			"select Max(CID)+1,'%s','%s','%s' from TModule "
+			,mUserName.Get(),bufinfo.GetBuffer(),pathbuilder.GetTop() );
+
+	if(mJangDB.Exec(sql.GetBuffer())==false)
+		{
+		MStdPrintf("**Unable to add data to database\n");
+		return false;
+		}
+
+	// Get the new rowid
+	MStdSPrintf(sql.GetBuffer(),sql.GetSize()-2,
+			"select Max(CID) from TModule where CUser='%s' and CInfo='%s' and CDirName='%s'"
+			,mUserName.Get(),bufinfo.GetBuffer(),pathbuilder.GetTop() );
+
+	// Get the new rowid
+	int newrowid;
+	if(mJangDB.Exec(sql.GetBuffer(),newrowid)==false)
+		{
+		return false;
+		}	
+	
+	// ** Save the files
+	MZipOps zipops(true);
+	MString outputzipfile;	
+	if(zipops.CompressFolder(abspath.Get(),GTmpZipName,outputzipfile)==false)
+		{
+		MStdPrintf("**Unable to compress folder %s\n",abspath.Get() );
+		return false;
+		}
+
+	//** Now We need to copy to target folder and delete the compressed file
+	MFilePathBuilder targetpathbuilder;
+	if(targetpathbuilder.Create(mStorageDir.Get())==false)
+		{
+		return false;
+		}
+
+	targetpathbuilder.Push(MStdStr(newrowid) );
+
+	MBuffer targetpathname;
+	if(targetpathbuilder.GetFullPath(targetpathname)==false)
+		{
+		return false;
+		}
+	
+	if(fileops.Copy(outputzipfile.Get(),targetpathname.GetBuffer())==false)
+		{
+		return false;
+		}
+
+	fileops.Delete(GTmpZipName);
+	
+	MStdPrintf("Compressed and saved folder %s as module %d\n",directory,newrowid);
+
+	return newrowid;
+	}
+
+
+//////////////////////////////////////////////////////////
+bool MJangData::ModuleDel(int modulekey)
+	{
+	if(modulekey<=0)
+		{
+		MStdPrintf("**Bad Module Key %d\n",modulekey);
+		return false;
+		}
+
+	MBuffer sql(1000);
+	MStdSPrintf(sql,sql.GetSize()-2,"delete from TModule where CID=%d and CUser='%s'",modulekey,mUserName.Get() );
+
+	if(mJangDB.Exec(sql.GetBuffer())==false)
+		{
+		MStdPrintf("**Module %d could not be deleted\n",modulekey);
+		return false;
+		}
+
+	MFilePathBuilder pathbuilder;
+	if(pathbuilder.Create(mStorageDir.Get())==false)
+		{
+		return false;
+		}
+
+	pathbuilder.Push(MStdStr(modulekey) );
+
+	MBuffer fullpathtomodule;
+	pathbuilder.GetFullPath(fullpathtomodule);
+
+	MFileOps fileops(true);
+	fileops.Delete(fullpathtomodule.GetBuffer() );
+
+	MStdPrintf("Module %d has been deleted.\n",modulekey);
 	return true;
 	}
 

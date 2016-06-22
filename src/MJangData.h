@@ -49,17 +49,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 	Database Design:
-
-		Module(Id,User,Info,Date,DirName)
+		Module(Id,User,Info,DirName)
 
 	Note:	
 		Id<=0 are used for testing purposes.
 
 
-	Business Services:
-	[Module]*		ModuleSearch(Word*)						: Find all modules that match version
-	[Module]		ModuleAdd(Info,SrcDirectory)			: Add a new module
-					ModuleDel([Module])						: Remove a module if no versions
+	Business Services
+	-----------------
+
+	[Module]*				ModuleSearch(Word*)						: Find all modules that match version
+	[Module]				ModuleAdd(Info,SrcDir)			: Add a new module
+							ModuleDel([Module])						: Remove a module if no versions
+	(Info,User,DirName)		ModuleGetInfo([Module])					: Get Information about module				
+
 */
 
 //******************************************************
@@ -74,7 +77,9 @@ bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const ch
 class MJangData
 	{
 	////////////////////////////////////////////////
-	MSQLite mJangDB;											// Backend Database
+	MSQLite mJangDB;													// Backend Database
+	MString mStorageDir;												// Directory where data is stored
+	MString mUserName;													// User Name of the current user
 	
 	////////////////////////////////////////////////
 	void ClearObject(void);
@@ -86,8 +91,9 @@ class MJangData
 	bool Create(void);
 	bool Destroy(void);
 	bool Search(MStringList &searchwords,MIntList &retkeys);			//  Return the set of keys of Modules
-	int ModuleAdd(const char *directory,const char *info);				//  
-	
+	int ModuleAdd(const char *directory,const char *info);				//  Add a new Module Information
+	bool ModuleDel(int modulekey);										//  Delete Module
+	bool ModuleGetInfo(int modulekey,MBuffer &info,MBuffer &username,MBuffer &dirinfo);	// Get info about Module	
 	};
 
 #endif // MJangData_h
