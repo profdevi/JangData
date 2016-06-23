@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.3 copyright Comine.com 20160620M1605
+//v0.4 copyright Comine.com 20160623R1934
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MZipOps.h"
 #include "MStringList.h"
 #include "MStringBuffer.h"
+#include "MString.h"
 #include "MJangData.h"
 
 
@@ -76,7 +77,7 @@ static const char *GSQLBuild[]=
 ////////////////////////////////////////////////////////
 static bool GCleanSQLInput(char *sql)
 	{
-	MStdStrRemoveChars(sql," \\\t\r\n'");
+	MStdStrRemoveChars(sql,"\\\t\r\n'");
 	return true;
 	}
 
@@ -326,30 +327,27 @@ bool MJangData::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////////////////
-bool MJangData::Search(MStringList &searchwords,MIntList &retkeys)
+bool MJangData::ModuleSearch(MStringList &searchwords,MIntList &retkeys)
 	{
 	
 	// Clean out the search string of special sql characters
-	MBuffer buffer(1024*4);
-	MStdStrClean(buffer.GetBuffer());				// remove non ascii characters
-	MStdStrRemoveChars(buffer,"\"\';\\");
-
+	MBuffer buffer(4096);
 	// Build up a generic search string
-	buffer.StringPrepend("select CID from TModule where CID>0 ");
+	buffer.SetString("select CID from TModule where CID>0 ");
 	searchwords.ReadReset();
 
 	MBuffer cleanword(1000);
-
 	for(const char *word=0;(word=searchwords.ReadString())!=0; )
 		{
 		cleanword.SetString(word);
 		GCleanSQLInput(cleanword.GetBuffer());
-		
+		MStdStrTrimLeft(cleanword.GetBuffer());
+		MStdStrTrimRight(cleanword.GetBuffer());
+
 		buffer.StringAppend(" and CInfo like '%");
 		buffer.StringAppend(cleanword.GetBuffer());
 		buffer.StringAppend("%' ");
 		}
-
 
 	MSQLiteReader reader;
 	if(mJangDB.Exec(reader,buffer.GetBuffer())==false)
@@ -506,5 +504,79 @@ bool MJangData::ModuleDel(int modulekey)
 	MStdPrintf("Module %d has been deleted.\n",modulekey);
 	return true;
 	}
+
+
+////////////////////////////////////////////////
+bool MJangData::ModuleGetInfo(int modulekey,MString &info,MString &username,MString &dirinfo)
+	{
+	MBuffer sql(1000);
+	MStdSPrintf(sql.GetBuffer(),sql.GetSize(),
+		"select CInfo,CUser,CDirName from TModule where CID>0 and CID=%d",modulekey);
+
+	// Execute SQL for data
+	MSQLiteReader reader;
+	if(mJangDB.Exec(reader,sql.GetBuffer())==false)
+		{
+		return false;
+		}
+
+	if(reader.GetRowCount()!=1 || reader.GetColumnCount()!=3)
+		{
+		return false;
+		}
+
+	reader.ReadReset();
+	if(reader.Read()==false)
+		{
+		return false;
+		}
+
+	info.Create(reader.GetColumn(0) );
+	username.Create(reader.GetColumn(1) );
+	dirinfo.Create(reader.GetColumn(2) );
+
+	return true;
+	}
+
+
+////////////////////////////////////////////////////////////////
+bool MJangData::ModuleDump(int modulekey)
+	{
+	MStdAssert(modulekey>0);
+	MString username;
+	MString dirname;
+	MString info;
+	if(ModuleGetInfo(modulekey,info,username,dirname)==false)
+		{
+		MStdPrintf("**Unable to get information about module %d\n",modulekey);
+		return false;
+		}
+
+	// Check if directory or file exists with the same name
+	MFileOps fileops(true);
+	MDirOps dirops(true);
+	if(fileops.Exists(dirname.Get())==true || dirops.Exists(dirname.Get() )==true)
+		{
+		MStdPrintf("**File or Directory already exists with name %s for module %d\n"
+				,dirname.Get(),modulekey);
+		return false;
+		}
+
+	// Build up the source zip file
+	MBuffer srczip(MStdPathMaxSize);
+	srczip.SetString(mStorageDir.Get());
+	srczip.StringAppend("/");
+	srczip.StringAppend(MStdStr(modulekey) );
+
+	fileops.Copy(srczip.GetBuffer(),GTmpZipName);
+	
+	// Uncompress the zip file
+	MZipOps zipops(true);
+	zipops.Decompress(GTmpZipName);
+	fileops.Delete(GTmpZipName);
+
+	MStdPrintf("Saved Module %d to directory %s\n",modulekey,dirname.Get() );
+	return true;
+	}	
 
 

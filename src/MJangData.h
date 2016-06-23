@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.3 copyright Comine.com 20160620M1605
+//v0.4 copyright Comine.com 20160623R1934
 #ifndef MJangData_h
 #define MJangData_h
 
@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MIntList.h"
+#include "MString.h"
 
 /*
 	// Config File should be MJangData.ini located in /etc or current directory
@@ -90,10 +91,11 @@ class MJangData
 	~MJangData(void);
 	bool Create(void);
 	bool Destroy(void);
-	bool Search(MStringList &searchwords,MIntList &retkeys);			//  Return the set of keys of Modules
+	bool ModuleSearch(MStringList &searchwords,MIntList &retkeys);		//  Return the set of keys of Modules
 	int ModuleAdd(const char *directory,const char *info);				//  Add a new Module Information
 	bool ModuleDel(int modulekey);										//  Delete Module
-	bool ModuleGetInfo(int modulekey,MBuffer &info,MBuffer &username,MBuffer &dirinfo);	// Get info about Module	
+	bool ModuleGetInfo(int modulekey,MString &info,MString &username,MString &dirinfo);	// Get info about Module	
+	bool ModuleDump(int modulekey);										// Save Module to current directory
 	};
 
 #endif // MJangData_h
