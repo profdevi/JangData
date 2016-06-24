@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160621T1312
+//v2.9 copyright Comine.com 20160624F1008
 /*
 Bug Notice:
 	MStdSPrintf(const wchar_t *)  seems to be failing.
@@ -939,6 +939,79 @@ bool MStdIsFinite(double val)
 	#endif
 	}
 
+
+///////////////////////////////////////////////////////
+bool MStdGetEnvVar(const char *var,char *buf,int buflen)
+	{
+	MStdAssert(buf!=0 && buflen>0);
+
+	///////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWS)
+	if(GetEnvironmentVariableA(var,buf,(DWORD)buflen)==0)
+		{
+		*buf=0;
+		return false;
+		}
+
+	return true;
+
+	///////////////////////////////
+	#elif defined(MSTDLIB_OS_LINUX)
+	const char *envvalue=getenv(var);
+	if(envvalue==0)
+		{
+		*buf=0;
+		return false;
+		}
+
+	const int envvaluelen=MStdStrLen(envvalue);
+	if(envvaluelen+1>buflen)
+		{
+		*buf=0;
+		return false;
+		}
+
+	MStdStrCpy(buf,envvalue);
+
+	return true;
+
+	///////////////////////////////
+	#else
+	return false;
+	#endif
+	}
+
+
+///////////////////////////////////////////////////////
+bool MStdGetUserHome(char *buf,int buflen)
+	{
+	MStdAssert(buf!=0 && buflen>0);
+	///////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWS)
+	if(MStdGetEnvVar("USERPROFILE",buf,buflen)==false)
+		{
+		*buf=0;
+		return false;
+		}
+
+	return true;
+
+	///////////////////////////////
+	#elif defined(MSTDLIB_OS_LINUX)
+	if(MStdGetEnvVar("HOME",buf,buflen)==false)
+		{
+		*buf=0;
+		return false;
+		}
+
+	return true;
+	
+
+	///////////////////////////////
+	#else
+	return false;
+	#endif
+	}
 
 ///////////////////////////////////////////////////////
 bool MStdMemCpy(void *target,const void *src,int count)
@@ -2224,4 +2297,5 @@ bool MStdStrCpy(MStdArray<char> &strout,const wchar_t *str)
 	MStdStrCpy(strout.Get(),strout.GetLength(),str);
 	return true;
 	}
+
 

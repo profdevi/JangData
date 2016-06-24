@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.4 copyright Comine.com 20160623R1934
+//v1.0 copyright Comine.com 20160624F1218
 #ifndef MJangData_h
 #define MJangData_h
 
@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MIntList.h"
+#include "MStringList.h"
 #include "MString.h"
 
 /*
@@ -89,7 +90,7 @@ class MJangData
 	public:
 	MJangData(void);
 	~MJangData(void);
-	bool Create(void);
+	bool Create(const char *configfilelocation);						// Read the configuration file
 	bool Destroy(void);
 	bool ModuleSearch(MStringList &searchwords,MIntList &retkeys);		//  Return the set of keys of Modules
 	int ModuleAdd(const char *directory,const char *info);				//  Add a new Module Information

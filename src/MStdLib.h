@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160621T1312
+//v2.9 copyright Comine.com 20160624F1008
 #ifndef MStdLib_h
 #define MStdLib_h
 
@@ -270,6 +270,11 @@ bool MStdExit(int value);								// Exit application
 // Char Functions
 bool MStdIsNan(double val);								// Check if float is Not A Number
 bool MStdIsFinite(double val);							// Check if number is finite
+
+/////////////////////////////////////////////////
+bool MStdGetEnvVar(const char *var,char *buf,int buflen);		// Get Environment variable
+bool MStdGetUserHome(char *buf,int buflen);				// Return the home directory of user
+
 
 //////////////////////////////////////////////////
 // Memory Functions

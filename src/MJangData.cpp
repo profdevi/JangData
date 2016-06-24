@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v0.4 copyright Comine.com 20160623R1934
+//v1.0 copyright Comine.com 20160624F1218
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -216,7 +216,7 @@ MJangData::~MJangData(void)
 
 
 ////////////////////////////////////////////////
-bool MJangData::Create(void)
+bool MJangData::Create(const char *configfilelocation)
 	{
 	Destroy();
 	
@@ -228,32 +228,13 @@ bool MJangData::Create(void)
 		return false;
 		}
 
-	// Check the etc folder
-	MBuffer configpath(1000);
-	MStdSPrintf(configpath,configpath.GetSize()-2,"/etc/%s",GConfigFileName);
-
-	MFileOps fileops(true);
-	if(fileops.Exists(GConfigFileName)==true)
-		{
-		if(configfile.ReadFile(GConfigFileName)==false)
-			{
-			Destroy();
-			return false;
-			}
-		}
-	else if(fileops.Exists(configpath.GetBuffer())==true)
-		{
-		if(configfile.ReadFile(configpath.GetBuffer())==false)
-			{
-			Destroy();
-			return false;
-			}
-		}
-	else
+	if(configfile.ReadFile(configfilelocation)==false)
 		{
 		Destroy();
 		return false;
 		}
+	
+
 
 	//=We Have loaded the config file into memory
 	
@@ -265,7 +246,9 @@ bool MJangData::Create(void)
 		return false;
 		}
 
+	
 	// Save folder
+	MFileOps fileops(true);
 	if(fileops.GetAbsolutePath(jangdatastore,mStorageDir)==false)
 		{
 		Destroy();
