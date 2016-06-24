@@ -1,7 +1,7 @@
-#v1.28 copyright Comine.com 20140727U1320
+#v1.0 copyright Comine.com 20160624F1307
 #
 #
-OUTPUT=main
+OUTPUT=jdata
 CPP=g++
 CC=gcc
 COMPARGS= -Iinclude  # -D_DEBUG -g -I/usr/include/freetype2 # -D_DEBUG  -g 

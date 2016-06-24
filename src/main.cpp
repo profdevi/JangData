@@ -30,16 +30,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.11 copyright Comine.com 20150810M1317
+//v0.1 copyright Comine.com 20160624F1239
 #include "MStdLib.h"
 #include "MCommandArg.h"
+#include "MJangData.h"
 
 
 //******************************************************
 //* Module Elements
 //******************************************************
-static const char *GApplicationName="AppName";	// Used in Help
-static const char *GApplicationVersion="0.0";	// Used in Help
+static const char *GApplicationName="JData";	// Used in Help
+static const char *GApplicationVersion="0.1";	// Used in Help
 
 ////////////////////////////////////////////////////
 static void GDisplayHelp(void);
@@ -72,9 +73,25 @@ int main(int argn,const char *argv[])
 static void GDisplayHelp(void)
 	{
 	MStdPrintf(	"\n"
-				"   usage:  %s [-?]\n"
-				"           v%s copyright Comine.com\n"
+				"   usage:  %s [-?] [-ini=<inifile>] <ops> \n"
+				"           v%s copyright Comine.com.\n"
+				"           Open Source http://github.com/profdevi/JangData\n"
 				"\n"
+				"       Examples 1:  Search for modules containing dehppv\n"
+				"\n"
+				"            $ jdata search dehppv \n"
+				"\n"
+				"       Examples 2:  Store the folder simdata with comment\n"
+				"\n"
+				"            $ jdata store simdata \"Mol Dyn Simulation data for LH2 embedded in water at room temperature\" \n"
+				"\n"
+				"       Examples 3:  Retrive module 100 into current folder\n"
+				"\n"
+				"            $ jdata get 100\n"
+				"\n"
+				"       Example 4: Delete module 1203 from storage\n"
+				"\n"
+				"            $ jdata delete 1203\n"
 				"\n"
 				,GApplicationName,GApplicationVersion);
 	}
