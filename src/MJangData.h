@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160624F1218
+//v1.1 copyright Comine.com 20160626U0906
 #ifndef MJangData_h
 #define MJangData_h
 
@@ -57,13 +57,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		Id<=0 are used for testing purposes.
 
 
-	Business Services
+	Services
 	-----------------
 
-	[Module]*				ModuleSearch(Word*)						: Find all modules that match version
+	[Module]*				ModuleSearch(Word*)				: Find all modules that match version
 	[Module]				ModuleAdd(Info,SrcDir)			: Add a new module
-							ModuleDel([Module])						: Remove a module if no versions
-	(Info,User,DirName)		ModuleGetInfo([Module])					: Get Information about module				
+							ModuleDel([Module])				: Remove a module if no versions
+	(Info,User,DirName)		ModuleGetInfo([Module])			: Get Information about module				
+							ModuleDump([Module])			: Dump module into current directory
 
 */
 
@@ -72,6 +73,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //******************************************************
 bool MJangDataCreate(const char *inifilename,const char *jangdatastore,const char *jangdatadb);
 bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const char *datadatadb);
+bool MJangDataExists(const char *inifilename);				// Check if ini is fine
+bool MJangDataExists(const char *jangdatastore,const char *jangdatadb);	// Check if data store and db file are fine
+bool MJangDataVerify(const char *inifilename);				// Verify the ini file
+bool MJangDataVerify(const char *jangdatastore,const char *jangdatadb);	// Verify the files
+
 
 //******************************************************
 //**  MJangData class
@@ -90,6 +96,7 @@ class MJangData
 	public:
 	MJangData(void);
 	~MJangData(void);
+	bool Create(const char *storagedir,const char *dbfile);				// Init using storage folder and db file location
 	bool Create(const char *configfilelocation);						// Read the configuration file
 	bool Destroy(void);
 	bool ModuleSearch(MStringList &searchwords,MIntList &retkeys);		//  Return the set of keys of Modules

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160624F1218
+//v1.1 copyright Comine.com 20160626U0906
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -196,6 +196,199 @@ bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const ch
 	return true;
 	}
 
+////////////////////////////////////////////////////////////////////
+bool MJangDataExists(const char *inifilename)
+	{
+	// Read the configuration file
+	MConfigFile configfile;
+	if(configfile.Create()==false)
+		{
+		return false;
+		}
+
+	if(configfile.ReadFile(inifilename)==false)
+		{
+		return false;
+		}
+	
+	//=We Have loaded the config file into memory
+	
+	// Check if ini config entriies are fine
+	const char *jangdatastore=configfile.Get(GJangDataStore);
+	if(jangdatastore==0)
+		{
+		return false;
+		}
+
+	const char *jangdatadb=configfile.Get(GJangDataDB);
+	if(jangdatadb==0)
+		{
+		return false;
+		}
+
+	if(MJangDataExists(jangdatastore,jangdatadb)==false)
+		{
+		return false;
+		}
+	
+	return true;
+	}
+
+
+/////////////////////////////////////////////////////////////////////
+bool MJangDataExists(const char *jangdatastore,const char *jangdatadb)
+	{
+	MStdAssert(jangdatastore!=0 && *jangdatastore!=0);
+	MStdAssert(jangdatadb!=0 && *jangdatadb!=0);
+
+	MFileOps fileops(true);
+	if(fileops.Exists(jangdatadb)==false)
+		{
+		return false;
+		}
+
+	MDirOps dirops(true);
+	if(dirops.Exists(jangdatastore)==false)
+		{
+		return false;
+		}
+	
+	return true;
+	}
+
+
+/////////////////////////////////////////////////////////////
+bool MJangDataVerify(const char *inifilename)
+	{
+	// Read the configuration file
+	MConfigFile configfile;
+	if(configfile.Create()==false)
+		{
+		return false;
+		}
+
+	if(configfile.ReadFile(inifilename)==false)
+		{
+		MStdPrintf("**Unable to read ini file %s\n",inifilename);
+		return false;
+		}
+	
+	//=We Have loaded the config file into memory
+	
+	// Check if ini config entriies are fine
+	const char *jangdatastore=configfile.Get(GJangDataStore);
+	if(jangdatastore==0)
+		{
+		MStdPrintf("**Config file %s missing %s=<Data Store Directory>\n",inifilename,GJangDataStore);
+		return false;
+		}
+
+	const char *jangdatadb=configfile.Get(GJangDataDB);
+	if(jangdatadb==0)
+		{
+		MStdPrintf("**Config file %s missing %s=<DB File Path>\n",inifilename,GJangDataDB);
+		return false;
+		}
+
+	if(MJangDataVerify(jangdatastore,jangdatadb)==false)
+		{
+		return false;
+		}
+	
+	return true;	
+	}
+
+
+/////////////////////////////////////////////////////////////
+bool MJangDataVerify(const char *jangdatastore,const char *jangdatadb)
+	{
+	MStdAssert(jangdatastore!=0 && *jangdatastore!=0);
+	MStdAssert(jangdatadb!=0 && *jangdatadb!=0);
+
+	MFileOps fileops(true);
+	if(fileops.Exists(jangdatadb)==false)
+		{
+		MStdPrintf("**DB File %s is missing\n",jangdatadb);
+		return false;
+		}
+
+	MDirOps dirops(true);
+	if(dirops.Exists(jangdatastore)==false)
+		{
+		MStdPrintf("**Data Store directory %s is missing\n",jangdatastore);
+		return false;
+		}
+
+	// Check if 
+	MSQLite sqlite;
+	if(sqlite.Create(jangdatadb)==false)
+		{
+		MStdPrintf("**Unable to open DB file %s\n",jangdatadb);
+		return false;
+		}
+
+	// Check if tables are ok
+	MSQLiteReader reader;
+	if(sqlite.Exec(reader,"select CID from TModule where CID>0")==false)
+		{
+		MStdPrintf("**Unable to get tables in db file %s\n",jangdatadb);
+		return false;
+		}
+
+	MIntList intlist(true);
+	while(reader.Read()==true)
+		{
+		const char *data=reader.GetColumn(0);
+		if(data==0)
+			{
+			MStdPrintf("**Bad data in DB file %s\n",jangdatadb);
+			return false;
+			}
+
+		const int modkey=MStdAToI(data);
+		if(modkey<=0)
+			{
+			MStdPrintf("**Bad data in DB file %s\n",jangdatadb);
+			return false;
+			}
+
+		intlist.Add(modkey);
+		}
+
+	//=We now have a list of module keys
+	//**Now Verify that the files exist
+	MString absstorepath;
+	if(fileops.GetAbsolutePath(jangdatastore,absstorepath)==false)
+		{
+		MStdPrintf("**Unable to get absolute path for %s\n",jangdatastore);
+		return false;
+		}
+
+	intlist.ReadReset();
+	bool flagfailed=false;
+	int key;
+	while(intlist.Read(key)==true)
+		{
+		MBuffer filepath(MStdPathMaxSize);
+		filepath.SetString(absstorepath.Get() );
+		filepath.StringAppend("/");
+		filepath.StringAppend(MStdStr(key) );
+
+		if(fileops.Exists(filepath.GetBuffer())==false)
+			{
+			MStdPrintf("**Missing file %d in data store\n",key);
+			flagfailed=true;
+			}
+		}
+
+	if(flagfailed==true) { return false; }
+	reader.Destroy();
+	sqlite.Destroy();
+
+	return true;	
+	}
+
+
 
 //******************************************************
 //**  MJangData class
@@ -214,6 +407,53 @@ MJangData::MJangData(void)
 MJangData::~MJangData(void)
 	{  Destroy();  }
 
+
+////////////////////////////////////////////////
+bool MJangData::Create(const char *storagedir,const char *dbfile)
+	{
+	Destroy();
+	// Check if Folder Exists
+
+	MFileOps fileops(true);
+	if(fileops.GetAbsolutePath(storagedir,mStorageDir)==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	MDirOps dirops(true);
+	if(dirops.Exists(mStorageDir.Get() )==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	if(fileops.Exists(dbfile)==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	// Open the sqlite db
+	if(mJangDB.Create(dbfile)==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	//**Get User Name
+	char username[100];
+	if(MStdGetUserName(username,sizeof(username)-2)==false)
+		{
+		Destroy();
+		return false;
+		}
+
+	// Update the username info
+	mUserName.Create(username);
+
+	return true;
+	}
 
 ////////////////////////////////////////////////
 bool MJangData::Create(const char *configfilelocation)
@@ -246,15 +486,6 @@ bool MJangData::Create(const char *configfilelocation)
 		return false;
 		}
 
-	
-	// Save folder
-	MFileOps fileops(true);
-	if(fileops.GetAbsolutePath(jangdatastore,mStorageDir)==false)
-		{
-		Destroy();
-		return false;
-		}
-
 	const char *jangdatadb=configfile.Get(GJangDataDB);
 	if(jangdatadb==0)
 		{
@@ -262,38 +493,11 @@ bool MJangData::Create(const char *configfilelocation)
 		return false;
 		}
 
-	// Check if file and directory exists
-	if(fileops.Exists(jangdatadb)==false)
+	if(Create(jangdatastore,jangdatadb)==false)
 		{
 		Destroy();
 		return false;
 		}
-
-	// Check if Folder Exists
-	MDirOps dirops(true);
-	if(dirops.Exists(jangdatastore)==false)
-		{
-		Destroy();
-		return false;
-		}
-
-	// Open the sqlite db
-	if(mJangDB.Create(jangdatadb)==false)
-		{
-		Destroy();
-		return false;
-		}
-
-	//**Get User Name
-	char username[100];
-	if(MStdGetUserName(username,sizeof(username)-2)==false)
-		{
-		Destroy();
-		return false;
-		}
-
-	// Update the username info
-	mUserName.Create(username);
 
 	return true;
 	}
