@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.1 copyright Comine.com 20160626U0906
+//v1.1 copyright Comine.com 20160626U2153
 #ifndef MJangData_h
 #define MJangData_h
 
@@ -73,6 +73,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //******************************************************
 bool MJangDataCreate(const char *inifilename,const char *jangdatastore,const char *jangdatadb);
 bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const char *datadatadb);
+bool MJangDataCreate(const char *jangdatastore,const char *jangdatadb);
+bool MJangDataDestroy(const char *jangdatastore,const char *datadatadb);
 bool MJangDataExists(const char *inifilename);				// Check if ini is fine
 bool MJangDataExists(const char *jangdatastore,const char *jangdatadb);	// Check if data store and db file are fine
 bool MJangDataVerify(const char *inifilename);				// Verify the ini file

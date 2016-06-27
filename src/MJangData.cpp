@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.1 copyright Comine.com 20160626U0906
+//v1.1 copyright Comine.com 20160626U2153
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -123,6 +123,34 @@ bool MJangDataCreate(const char *inifilename,const char *jangdatastore,const cha
 	fileout.WriteChars("\n");
 	fileout.Destroy();
 
+	if(MJangDataCreate(jangdatastore,jangdatadb)==false)
+		{
+		MJangDataDestroy(inifilename,jangdatastore,jangdatadb);
+		return false;
+		}
+
+	return true;
+	}
+
+
+///////////////////////////////////////////////////////////
+bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const char *datadatadb)
+	{
+	MFileOps fileops(true);
+	fileops.Delete(inifilename);
+
+	if(MJangDataDestroy(jangdatastore,datadatadb)==false)
+		{
+		return false;
+		}
+
+	return true;
+	}
+
+
+///////////////////////////////////////////////////
+bool MJangDataCreate(const char *jangdatastore,const char *jangdatadb)
+	{
 	// *** Create Folder for data store ***
 	MDirOps dirops(true);
 	if(dirops.MakeDir(jangdatastore)==false)
@@ -149,16 +177,15 @@ bool MJangDataCreate(const char *inifilename,const char *jangdatastore,const cha
 			}
 		}
 
-	sqlite.Destroy();
+	sqlite.Destroy();	
 	return true;
 	}
 
 
-///////////////////////////////////////////////////////////
-bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const char *datadatadb)
+///////////////////////////////////////////////////
+bool MJangDataDestroy(const char *jangdatastore,const char *datadatadb)
 	{
 	MFileOps fileops(true);
-	fileops.Delete(inifilename);
 	fileops.Delete(datadatadb);
 
 	// Check if data store folder exists
@@ -195,6 +222,7 @@ bool MJangDataDestroy(const char *inifilename,const char *jangdatastore,const ch
 
 	return true;
 	}
+
 
 ////////////////////////////////////////////////////////////////////
 bool MJangDataExists(const char *inifilename)
@@ -583,7 +611,7 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	if(fileops.GetAbsolutePath(directory,abspath)==false)
 		{
 		MStdPrintf("**Unable to get absolute path to directory %s\n",directory);
-		return false;
+		return 0;
 		}
 
 	// Extract the directory name
@@ -591,7 +619,7 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	if(pathbuilder.Create(abspath.Get())==false)
 		{
 		MStdPrintf("**Unable to parse path %s\n",abspath.Get() );
-		return false;
+		return 0;
 		}
 
 	//**Insert new row into table
@@ -604,7 +632,7 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	if(mJangDB.Exec(sql.GetBuffer())==false)
 		{
 		MStdPrintf("**Unable to add data to database\n");
-		return false;
+		return 0;
 		}
 
 	// Get the new rowid
@@ -616,7 +644,7 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	int newrowid;
 	if(mJangDB.Exec(sql.GetBuffer(),newrowid)==false)
 		{
-		return false;
+		return 0;
 		}	
 	
 	// ** Save the files
@@ -625,14 +653,14 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	if(zipops.CompressFolder(abspath.Get(),GTmpZipName,outputzipfile)==false)
 		{
 		MStdPrintf("**Unable to compress folder %s\n",abspath.Get() );
-		return false;
+		return 0;
 		}
 
 	//** Now We need to copy to target folder and delete the compressed file
 	MFilePathBuilder targetpathbuilder;
 	if(targetpathbuilder.Create(mStorageDir.Get())==false)
 		{
-		return false;
+		return 0;
 		}
 
 	targetpathbuilder.Push(MStdStr(newrowid) );
@@ -640,12 +668,12 @@ int MJangData::ModuleAdd(const char *directory,const char *info)
 	MBuffer targetpathname;
 	if(targetpathbuilder.GetFullPath(targetpathname)==false)
 		{
-		return false;
+		return 0;
 		}
 	
 	if(fileops.Copy(outputzipfile.Get(),targetpathname.GetBuffer())==false)
 		{
-		return false;
+		return 0;
 		}
 
 	fileops.Delete(GTmpZipName);
