@@ -7,24 +7,42 @@ CC=gcc
 COMPARGS= -Iinclude  # -D_DEBUG -g -I/usr/include/freetype2 # -D_DEBUG  -g 
 LINKARGS= -lpthread -ldl # -lX11 -lXext -lXmu -lfreetype -lasound -lGL -lGLU 
 
-
 ####################################################
 all :
+	@echo "usage: make [build|install|uninstall|clean]"
+
+
+####################################################
+build :
 	$(CPP) -c $(COMPARGS) *.cpp 
 	$(CC) -c  $(COMPARGS) *.c
 	$(CPP) $(LINKARGS) *.o -o $(OUTPUT)
+	touch build
+
+
+####################################################
+install: build
+	cp -f $(OUTPUT) /usr/bin/jdata
+	@echo "**Installed jdata to /usr/bin"
 
 
 ####################################################
 clean:
 	-rm -f *.o
 	-rm -f $(OUTPUT)
+	-rm -f build
 
+
+####################################################
+uninstall:
+	rm -f /usr/bin/jdata
+	@echo "Removed /usr/bin/jdata"
 
 
 ####################################################
 cleanall:
 	-rm -f *.o
 	-rm -f $(OUTPUT)
+	-rm -f build
 
 

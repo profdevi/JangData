@@ -1,4 +1,4 @@
-#v1.0 copyright Comine.com 20160624F1307
+#v1.0 copyright Comine.com 20160627M0724
 # Simple Make file for nmake
 #  -Revised to exclude extra search libraries
 
@@ -10,10 +10,6 @@ BASELIBS=
 FLAGS=-nologo -DWIN32 -O2 -DNDEBUG -MT -DUNICODE -D_UNICODE -D_CONSOLE -Iinclude -EHsc
 CFLAGS=-I . 
 CLINKFLAGS=                                 # /NODEFAULTLIB:LIBCMT 
-DSNNAME=UnitTest
-BUILDDBSQL=dbbuild.tmp
-DROPDBSQL=dbdrop.tmp
-
 
 ########### Main.exe ##############
 all : ResourceFiles $(OUTPUT)
@@ -60,10 +56,4 @@ cleanall:
 	-rm -f *.tli
 	-rm -f *.tlh
 	-rm -f $(OUTPUT)
-	-rm -f $(BUILDDBSQL)
-	-rm -f $(DROPDBSQL)
-	-rm $(DSNNAME).mdb
-	-MODBCDSN -type=access -remove -dsn=$(DSNNAME)
-
-
 

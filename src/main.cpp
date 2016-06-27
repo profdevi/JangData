@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160625U2150
+//v1.0 copyright Comine.com 20160627M1014
 #include "MStdLib.h"
 #include "MCommandArg.h"
 #include "MBuffer.h"
@@ -88,6 +88,8 @@ int main(int argn,const char *argv[])
 	if(args.CheckRemoveArg("-global")==true)
 		{
 		flaglocalrepos=false;
+		MStdPrintf("**-global shared repository has not been implemented yet\n");
+		return 1;
 		}
 
 	if(GInitStorage(jdata,flaglocalrepos)==false)
@@ -205,28 +207,20 @@ static void GDisplayHelp(void)
 				"           v%s copyright Comine.com.\n"
 				"           Open Source http://github.com/profdevi/JangData\n"
 				"\n"
-				"     Option -global selects the shared global repository, otherwise the\n"
-				"     local repository jdata folder in the users home directory is used \n"
-				"     by default.\n"
+				"          -global    : selects the shared global repository.\n"
+				"          -localinit : initialize the users personal storage folder\n"
 				"\n"
-				"     Option -localinit will initialize the users personal storage folder\n"
-				"     and db file.\n"
+				"   Examples 1:  Search for modules containing dehppv\n"
+				"        $ jdata -search dehppv \n"
 				"\n"
-				"       Examples 1:  Search for modules containing dehppv\n"
+				"   Examples 2:  Store the folder simdata with comment\n"
+				"        $ jdata -add simdata \"Mol Dyn Simulation data for LH2 embedded in water at room temperature\" \n"
 				"\n"
-				"            $ jdata -search dehppv \n"
+				"   Examples 3:  Retrive module 100 into current folder\n"
+				"        $ jdata -get 100\n"
 				"\n"
-				"       Examples 2:  Store the folder simdata with comment\n"
-				"\n"
-				"            $ jdata -add simdata \"Mol Dyn Simulation data for LH2 embedded in water at room temperature\" \n"
-				"\n"
-				"       Examples 3:  Retrive module 100 into current folder\n"
-				"\n"
-				"            $ jdata -get 100\n"
-				"\n"
-				"       Example 4: Delete module 1203 from storage\n"
-				"\n"
-				"            $ jdata -del 1203\n"
+				"   Example 4: Delete module 1203 from storage\n"
+				"        $ jdata -del 1203\n"
 				"\n"
 				,GApplicationName,GApplicationVersion);
 	}
