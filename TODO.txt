@@ -1,0 +1,8 @@
+TODO
+----
+
+1.  Convert Make files to CMake
+2.  Add Mac OS to development tree
+3.  Add the Global Shared repository for all users.
+
+
