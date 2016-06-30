@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.1 copyright Comine.com 20160626U2153
+//v1.2 copyright Comine.com 20160630R1222
 #ifndef MJangData_h
 #define MJangData_h
 

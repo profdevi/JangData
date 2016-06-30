@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.1 copyright Comine.com 20160627M1853
+//v1.2 copyright Comine.com 20160630R1223
 #include "MStdLib.h"
 #include "MCommandArg.h"
 #include "MBuffer.h"
@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //* Module Elements
 //******************************************************
 static const char *GApplicationName="JData";	// Used in Help
-static const char *GApplicationVersion="1.1";	// Used in Help
+static const char *GApplicationVersion="1.2";	// Used in Help
 static const char *GLocalDir="jdata";
 static const char *GLocalDB="jdata.db";
 static const char *GGlobalDir="/jdata";
