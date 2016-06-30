@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.0 copyright Comine.com 20160627M1014
+//v1.1 copyright Comine.com 20160627M1853
 #include "MStdLib.h"
 #include "MCommandArg.h"
 #include "MBuffer.h"
@@ -45,13 +45,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //* Module Elements
 //******************************************************
 static const char *GApplicationName="JData";	// Used in Help
-static const char *GApplicationVersion="1.0";	// Used in Help
+static const char *GApplicationVersion="1.1";	// Used in Help
 static const char *GLocalDir="jdata";
 static const char *GLocalDB="jdata.db";
+static const char *GGlobalDir="/jdata";
+static const char *GGlobalDB="/jdata/jdata.db";
 
 ////////////////////////////////////////////////////
 static void GDisplayHelp(void);
 static bool GInitStorage(MJangData &jdata,bool localrepository=true);
+static bool GArgGlobalInitialize(void);
 static bool GArgLocalInit(void);			// Initialize the local storage
 static bool GArgAdd(MJangData &jdata,const char *dirtostore,const char *info);
 static bool GArgDel(MJangData &jdata,int moduleid);
@@ -83,13 +86,19 @@ int main(int argn,const char *argv[])
 		return 0;
 		}
 
+	// Init the local storage
+	if(args.CheckRemoveArg("-globalinit")==true)
+		{
+		if(GArgGlobalInitialize()==false) {  return 1;  }
+		return 0;
+		}
+
+
 	MJangData jdata;
 	bool flaglocalrepos=true;
 	if(args.CheckRemoveArg("-global")==true)
 		{
 		flaglocalrepos=false;
-		MStdPrintf("**-global shared repository has not been implemented yet\n");
-		return 1;
 		}
 
 	if(GInitStorage(jdata,flaglocalrepos)==false)
@@ -203,12 +212,13 @@ int main(int argn,const char *argv[])
 static void GDisplayHelp(void)
 	{
 	MStdPrintf(	"\n"
-				"   usage:  %s [-?] [-global|-localinit] <ops> \n"
+				"   usage:  %s [-?] [-global|-localinit|-globalinit] <ops> \n"
 				"           v%s copyright Comine.com.\n"
-				"           Open Source http://github.com/profdevi/JangData\n"
+				"           Open Source http://github.com/profdevi/JangData \n"
 				"\n"
-				"          -global    : selects the shared global repository.\n"
-				"          -localinit : initialize the users personal storage folder\n"
+				"          -global     : selects the shared global repository.\n"
+				"          -localinit  : initialize the users personal storage folder\n"
+				"          -globalinit : Initialize the global shared repository\n"
 				"\n"
 				"   Examples 1:  Search for modules containing dehppv\n"
 				"        $ jdata -search dehppv \n"
@@ -256,8 +266,36 @@ static bool GInitStorage(MJangData &jdata,bool localrepository)
 		return true;
 		}
 
-	//= We Should use the global ini file in etc
-	MStdPrintf("**Incomplete Global Shared Implementation\n");
+	//= We should use the global repository
+
+	if(jdata.Create(GGlobalDir,GGlobalDB)==false)
+		{
+		MStdPrintf("**Unable to open global data file for sharing\n");
+		return false;
+		}
+
+	return true;
+	}
+
+
+////////////////////////////////////////////////////////
+static bool GArgGlobalInitialize(void)
+	{
+	MFileOps fileops(true);
+	MDirOps dirops(true);
+	if(dirops.Exists(GGlobalDir)==false)
+		{
+		if(MJangDataCreate(GGlobalDir,GGlobalDB)==false)
+			{
+			MStdPrintf("**Unable to create global storage /jdata and db file /jdata/jdata.db\n");
+			return false;
+			}
+
+		MStdPrintf("Created /jdata and /jdata/jdata.db file\n");
+		return true;
+		}
+
+	MStdPrintf("**Global /jdata folder already exists");
 	return false;
 	}
 

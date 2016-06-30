@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	// Config File should be MJangData.ini located in /etc or current directory
 	// The Format should be
 	##################################
+
 	# Pound marks comments
 	MJangDataStore=/JangData				# Directory where data is stored
 	MJangDataDB=/JangData/JangData.dat		# location of sqlite database
