@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v1.1 copyright Comine.com 20160626U2153
+//v1.2 copyright Comine.com 20160630R1222
 #include "MStdLib.h"
 #include "MSQLite.h"
 #include "MFileOps.h"
@@ -690,6 +690,21 @@ bool MJangData::ModuleDel(int modulekey)
 	if(modulekey<=0)
 		{
 		MStdPrintf("**Bad Module Key %d\n",modulekey);
+		return false;
+		}
+
+	// Get Module Information
+	MString modinfo,moduser,moddirname;
+	if(ModuleGetInfo(modulekey,modinfo,moduser,moddirname)==false)
+		{
+		MStdPrintf("**Unable to get module information for %d\n",modulekey);
+		return false;
+		}
+
+	// Confirm that the module owner is correct
+	if(MStdStrCmp(moduser.Get(),mUserName.Get())!=0)
+		{
+		MStdPrintf("**Only module %d owner %s can delete\n",modulekey,moduser.Get() );
 		return false;
 		}
 

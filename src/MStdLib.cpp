@@ -57,6 +57,7 @@ Bug Notice:
 	#if ( defined(MSTDLIB_OS_WINDOWS) )
 	#pragma comment(lib,"user32.lib")
 	#pragma comment(lib,"kernel32.lib")
+	#pragma comment(lib,"advapi32.lib")
 	#endif
 
 ///////////////////////////////////////////
@@ -956,7 +957,7 @@ bool MStdGetEnvVar(const char *var,char *buf,int buflen)
 	return true;
 
 	///////////////////////////////
-	#elif defined(MSTDLIB_OS_LINUX)
+	#elif (defined(MSTDLIB_OS_LINUX) || defined(MSTDLIB_OS_MINGW) || defined(MSTDLIB_OS_MACOS) )
 	const char *envvalue=getenv(var);
 	if(envvalue==0)
 		{
@@ -987,7 +988,7 @@ bool MStdGetUserHome(char *buf,int buflen)
 	{
 	MStdAssert(buf!=0 && buflen>0);
 	///////////////////////////////
-	#if defined(MSTDLIB_OS_WINDOWS)
+	#if (defined(MSTDLIB_OS_WINDOWS) || defined(MSTDLIB_OS_MINGW) )
 	if(MStdGetEnvVar("USERPROFILE",buf,buflen)==false)
 		{
 		*buf=0;
@@ -997,7 +998,7 @@ bool MStdGetUserHome(char *buf,int buflen)
 	return true;
 
 	///////////////////////////////
-	#elif defined(MSTDLIB_OS_LINUX)
+	#elif (defined(MSTDLIB_OS_LINUX) ||  defined(MSTDLIB_OS_MACOS) )
 	if(MStdGetEnvVar("HOME",buf,buflen)==false)
 		{
 		*buf=0;
