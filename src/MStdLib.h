@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160624F1008
+//v2.10 copyright Comine.com 20160720W0608
 #ifndef MStdLib_h
 #define MStdLib_h
 
@@ -194,6 +194,9 @@ Note Visual Studio
 #ifndef MStdDebug
 #define MStdDebug(infostr)		MStdError(infostr,__FILE__,__LINE__)
 #endif // MStdDebug
+
+///////////////////////////////////////////////////
+bool MStdPrintInfo(void);		// Print out information
 
 //////////////////////////////////////////////////
 void MStdAssertInternal(bool flag,const char *exp,const char *filename,int lineno);

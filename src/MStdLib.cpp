@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-//v2.9 copyright Comine.com 20160624F1008
+//v2.10 copyright Comine.com 20160720W0608
 /*
 Bug Notice:
 	MStdSPrintf(const wchar_t *)  seems to be failing.
@@ -85,6 +85,82 @@ static wchar_t GTempWideBuffer[100]=L"";
 //***************************************************
 //** Functions
 //***************************************************
+bool MStdPrintInfo(void)
+	{
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWS)
+	MStdPrintf(" MSTDLIB_OS_WINDOWS defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWSRT)
+	MStdPrintf(" MSTDLIB_OS_WINDOWSRT defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_WINDOWSOLD)
+	MStdPrintf(" MSTDLIB_OS_WINDOWSOLD defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_MINGW)
+	MStdPrintf(" MSTDLIB_OS_MINGW defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_LINUX)
+	MStdPrintf(" MSTDLIB_OS_LINUX defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_IPHONE)
+	MStdPrintf(" MSTDLIB_OS_IPHONE defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_MACOS)
+	MStdPrintf(" MSTDLIB_OS_MACOS defined\n");
+	#endif
+
+	//////////////////////////////////////////////////
+	#if defined(MSTDLIB_OS_OTHER)
+	MStdPrintf(" MSTDLIB_OS_OTHER defined\n");
+	#endif
+
+	MStdPrintf("\n");
+
+	// Allocate a buffer for getting information
+	char buffer[100];
+
+	// Print Machine Name:
+	MStdGetMachineName(buffer,sizeof(buffer)-2);
+	MStdPrintf(" Machine Name    :  %s\n",buffer);
+
+	// Print OS Root
+	MStdGetOSRoot(buffer,sizeof(buffer)-2);
+	MStdPrintf(" OS Root         :  %s\n",buffer);
+
+	// Print Path Seperator
+	MStdGetOSPathSeperator(buffer,sizeof(buffer)-2);
+	MStdPrintf(" Path Seperator  :  %s\n",buffer);
+
+	// Print User Name
+	MStdGetUserName(buffer,sizeof(buffer)-2);
+	MStdPrintf(" User Name       :  %s\n",buffer);
+
+	// Print User Home Directory
+	MStdGetUserHome(buffer,sizeof(buffer)-2);
+	MStdPrintf(" User Home       :  %s\n",buffer);
+
+	// Print out current time
+	time_t timeofday=MStdGetTime();
+	MStdCTime(buffer,sizeof(buffer)-2,&timeofday);
+	MStdPrintf(" Time of Day     :  %s\n",buffer);
+	
+	return true;
+	}
+
+
 /////////////////////////////////////////////////////
 void MStdAssertInternal(bool flag,const char *exp,const char *filename,int lineno)
 	{
@@ -995,6 +1071,11 @@ bool MStdGetUserHome(char *buf,int buflen)
 		return false;
 		}
 
+	// Convert forward slashes to backword slashes
+	for(int i=0;buf[i]!=0;++i)
+		{
+		if(buf[i]=='\\') {  buf[i]='/'; }
+		}
 	return true;
 
 	///////////////////////////////
